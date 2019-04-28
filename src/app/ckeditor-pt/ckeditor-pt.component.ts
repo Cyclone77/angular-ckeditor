@@ -3,6 +3,8 @@ import { HttpClient } from '@angular/common/http';
 
 import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
 import '@ckeditor/ckeditor5-build-classic/build/translations/zh-cn.js';
+import CKFinder from '@ckeditor/ckeditor5-ckfinder/src/ckfinder';
+
 
 @Component({
   selector: 'app-ckeditor-pt',
@@ -11,6 +13,7 @@ import '@ckeditor/ckeditor5-build-classic/build/translations/zh-cn.js';
 })
 export class CkeditorPtComponent implements OnInit {
 
+  editor: ClassicEditor;
   constructor(
     private http: HttpClient
   ) { }
@@ -19,6 +22,8 @@ export class CkeditorPtComponent implements OnInit {
     ClassicEditor
       .create(document.querySelector('#editor'), {
         language: 'zh-cn',
+        // plugins: [ CKFinder ],
+        // toolbar: ['ckfinder', 'imageUpload' ],
         ckfinder: {
           options: {
             resourceType: 'Images'
@@ -28,12 +33,13 @@ export class CkeditorPtComponent implements OnInit {
         }
       })
       .then(editor => {
+        this.editor = editor;
         editor.plugins.get('FileRepository').createUploadAdapter = (loader) => {
           return {
             upload: () => {
               return new Promise((resolve, reject) => {
                 const data = new FormData();
-                data.append('file', loader.file);
+                data.append('image', loader.file);
                 data.append('allowSize', '10'); // 允许图片上传的大小/兆
 
                 // tslint:disable-next-line:variable-name
@@ -50,6 +56,10 @@ export class CkeditorPtComponent implements OnInit {
       .catch(error => {
         console.error(error);
       });
+  }
+
+  getEditorData() {
+    console.log(this.editor.getData());
   }
 
 }
